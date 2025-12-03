@@ -39,9 +39,9 @@ models:
           source_type: "rest_api"
           loader: "dlt"
 
-    # Silver layer: Cleaned and conformed data, ephemeral by default
+    # Silver layer: Cleaned and conformed data, views for inspection
     silver:
-      +materialized: ephemeral
+      +materialized: view
       +schema: silver
       +docs:
         node_color: "#C0C0C0"  # Silver color in dbt docs
