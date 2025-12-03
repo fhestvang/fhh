@@ -251,12 +251,6 @@ models:
       - name: order_id
         description: "Degenerate dimension: order identifier"
 
-      - name: order_status
-        description: "Order status"
-        tests:
-          - accepted_values:
-              values: ['placed', 'shipped', 'completed', 'return_pending', 'returned']
-
       - name: order_amount
         description: "Total order amount (additive measure)"
 

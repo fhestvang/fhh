@@ -8,6 +8,7 @@ renamed as (
         customer_id,
         store_id,
         ordered_at as order_date,
+        1 as changed_column,
         subtotal,
         tax_paid,
         order_total,

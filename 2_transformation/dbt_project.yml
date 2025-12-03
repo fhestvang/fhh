@@ -78,19 +78,6 @@ models:
           +meta:
             model_type: "fact"
 
-# Seeds configuration
-seeds:
-  fhh:
-    +schema: seeds
-    +quote_columns: false
-
-# Snapshots configuration (for SCD Type 2)
-snapshots:
-  fhh:
-    +target_schema: snapshots
-    +strategy: timestamp
-    +updated_at: updated_at
-
 # Tests configuration
 tests:
   fhh:
@@ -102,7 +89,7 @@ tests:
 # Global variables (can be overridden in profiles.yml)
 vars:
   # Date range for date dimension
-  date_dimension_start: '2018-01-01'
+  date_dimension_start: '2016-01-01'
   date_dimension_end: '2030-12-31'
 
   # Fiscal year settings

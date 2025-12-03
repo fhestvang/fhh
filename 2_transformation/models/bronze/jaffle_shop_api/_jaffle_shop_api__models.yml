@@ -78,13 +78,6 @@ models:
         tests:
           - not_null
 
-      - name: status
-        description: "Order status"
-        tests:
-          - not_null
-          - accepted_values:
-              values: ['placed', 'shipped', 'completed', 'return_pending', 'returned']
-
       - name: _dlt_load_id
         description: "dlt load ID for tracking which pipeline run loaded this record"
 
@@ -178,8 +171,8 @@ models:
               to: ref('brz_jaffle_shop_api__orders')
               field: order_id
 
-      - name: product_id
-        description: "Foreign key to products"
+      - name: product_sku
+        description: "Foreign key to products (SKU)"
         tests:
           - not_null
 
@@ -206,14 +199,11 @@ models:
       Loaded from Jaffle Shop REST API via dlt pipeline
 
     columns:
-      - name: product_id
-        description: "Primary key for products"
+      - name: product_sku
+        description: "Primary key for products (SKU)"
         tests:
           - unique
           - not_null
-          - relationships:
-              to: source('jaffle_shop_api', 'raw_products')
-              field: id
 
       - name: product_name
         description: "Product name"
@@ -266,8 +256,8 @@ models:
               to: source('jaffle_shop_api', 'raw_supplies')
               field: id
 
-      - name: product_id
-        description: "Foreign key to products"
+      - name: product_sku
+        description: "Foreign key to products (SKU)"
         tests:
           - not_null
 

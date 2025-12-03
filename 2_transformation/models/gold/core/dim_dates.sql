@@ -12,14 +12,13 @@
 */
 
 with date_spine as (
-    -- Generate dates from 2018-01-01 to 2030-12-31
-    -- Adjust range based on your data needs
+    -- Generate dates from config vars (date_dimension_start to date_dimension_end)
     select
         date_value::date as date_key
     from (
         select
-            '2018-01-01'::date + (row_number() over (order by 1) - 1) * interval '1 day' as date_value
-        from range(0, 4748)  -- Generates ~13 years of dates
+            '{{ var("date_dimension_start") }}'::date + (row_number() over (order by 1) - 1) * interval '1 day' as date_value
+        from range(0, datediff('day', '{{ var("date_dimension_start") }}'::date, '{{ var("date_dimension_end") }}'::date) + 1)
     )
 ),
 
