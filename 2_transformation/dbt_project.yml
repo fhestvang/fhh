@@ -1,8 +1,8 @@
-name: 'test_proj'
+name: 'fhh'
 version: '1.0.0'
 config-version: 2
 
-profile: 'test_proj'
+profile: 'fhh'
 
 model-paths: ["models"]
 analysis-paths: ["analyses"]
@@ -18,7 +18,7 @@ clean-targets:
 
 # Enterprise-grade model configurations (Medallion Architecture)
 models:
-  test_proj:
+  fhh:
 
     # Bronze layer: Raw data ingestion, lightweight views organized by source system
     bronze:
@@ -80,20 +80,20 @@ models:
 
 # Seeds configuration
 seeds:
-  test_proj:
+  fhh:
     +schema: seeds
     +quote_columns: false
 
 # Snapshots configuration (for SCD Type 2)
 snapshots:
-  test_proj:
+  fhh:
     +target_schema: snapshots
     +strategy: timestamp
     +updated_at: updated_at
 
 # Tests configuration
 tests:
-  test_proj:
+  fhh:
     +severity: warn  # Don't fail builds on test failures by default
 
     gold:
