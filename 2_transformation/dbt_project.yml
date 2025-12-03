@@ -4,6 +4,9 @@ config-version: 2
 
 profile: 'fhh'
 
+dbt-cloud:
+    project-id: 70471823530917
+
 model-paths: ["models"]
 analysis-paths: ["analyses"]
 test-paths: ["tests"]

@@ -1,0 +1,6 @@
+17:26:36  Running with dbt=1.7.10
+17:26:37  Registered adapter: duckdb=1.7.1
+17:26:37  Found 12 models, 74 tests, 7 sources, 0 exposures, 0 metrics, 422 macros, 0 groups, 0 semantic models
+fhh.bronze.jaffle_shop_api.brz_jaffle_shop_api__orders
+fhh.bronze.jaffle_shop_api.brz_jaffle_shop_api__supplies
+fhh.gold.core.dim_dates
