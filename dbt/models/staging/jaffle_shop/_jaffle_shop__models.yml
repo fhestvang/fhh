@@ -1,0 +1,115 @@
+version: 2
+
+models:
+  - name: stg_jaffle_shop__customers
+    description: |
+      Staged customer data with cleaned column names.
+
+      ## Grain
+      One row per customer
+
+      ## Business Logic
+      - Renames source columns to analytics-friendly names
+      - No filtering or business logic applied
+      - 1:1 relationship with source table
+
+    columns:
+      - name: customer_id
+        description: "Primary key for customers"
+        tests:
+          - unique
+          - not_null
+          - relationships:
+              to: source('jaffle_shop_raw', 'raw_customers')
+              field: id
+
+      - name: first_name
+        description: "Customer first name"
+
+      - name: last_name
+        description: "Customer last name"
+
+  - name: stg_jaffle_shop__orders
+    description: |
+      Staged order data with cleaned column names.
+
+      ## Grain
+      One row per order
+
+      ## Business Logic
+      - Renames source columns to analytics-friendly names
+      - No filtering or business logic applied
+      - 1:1 relationship with source table
+
+    columns:
+      - name: order_id
+        description: "Primary key for orders"
+        tests:
+          - unique
+          - not_null
+          - relationships:
+              to: source('jaffle_shop_raw', 'raw_orders')
+              field: id
+
+      - name: customer_id
+        description: "Foreign key to customers"
+        tests:
+          - not_null
+          - relationships:
+              to: ref('stg_jaffle_shop__customers')
+              field: customer_id
+
+      - name: order_date
+        description: "Date the order was placed"
+        tests:
+          - not_null
+
+      - name: status
+        description: "Order status"
+        tests:
+          - not_null
+          - accepted_values:
+              values: ['placed', 'shipped', 'completed', 'return_pending', 'returned']
+
+  - name: stg_jaffle_shop__payments
+    description: |
+      Staged payment data with cleaned column names and converted amounts.
+
+      ## Grain
+      One row per payment
+
+      ## Business Logic
+      - Renames source columns to analytics-friendly names
+      - Converts amount from cents to dollars
+      - No filtering applied
+      - 1:1 relationship with source table
+
+    columns:
+      - name: payment_id
+        description: "Primary key for payments"
+        tests:
+          - unique
+          - not_null
+          - relationships:
+              to: source('jaffle_shop_raw', 'raw_payments')
+              field: id
+
+      - name: order_id
+        description: "Foreign key to orders"
+        tests:
+          - not_null
+          - relationships:
+              to: ref('stg_jaffle_shop__orders')
+              field: order_id
+
+      - name: payment_method
+        description: "Payment method used"
+        tests:
+          - not_null
+          - accepted_values:
+              values: ['credit_card', 'coupon', 'bank_transfer', 'gift_card']
+
+      - name: amount
+        description: "Payment amount in dollars (converted from cents)"
+        tests:
+          - not_null

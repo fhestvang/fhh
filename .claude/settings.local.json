@@ -1,0 +1,25 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(dbt init:*)",
+      "Bash(pip install:*)",
+      "Bash(python -m dbt.cli.main init:*)",
+      "Bash(pipx ensurepath:*)",
+      "Bash(python -m pipx:*)",
+      "Bash(dbt --version:*)",
+      "Bash(dbt.exe --version:*)",
+      "Bash(powershell.exe -ExecutionPolicy Bypass -File \"C:\\Users\\FrederikHye-Hestvang\\test\\test_proj\\add-dbt-to-path.ps1\")",
+      "Bash(powershell.exe -Command \"[Environment]::GetEnvironmentVariable(''Path'', ''User'')\")",
+      "Bash(find:*)",
+      "Bash(ls:*)",
+      "Bash(powershell.exe -Command \"Move-Item -Path ''test_proj'' -Destination ''dbt'' -Force\")",
+      "Bash(powershell.exe -Command \"Get-ChildItem -Path ''test_proj'' -Recurse | Select-Object -First 5\")",
+      "Bash(powershell.exe -Command \"Copy-Item -Path ''test_proj'' -Destination ''dbt'' -Recurse -Force\")",
+      "Bash(powershell.exe -Command \"Remove-Item -Path ''test_proj'' -Recurse -Force\")",
+      "Bash(powershell.exe:*)",
+      "Bash(git init:*)"
+    ],
+    "deny": [],
+    "ask": []
+  }
+}

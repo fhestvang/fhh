@@ -1,0 +1,50 @@
+version: 2
+
+models:
+  - name: int_payments__pivoted
+    description: |
+      Intermediate model that pivots payment data by payment method.
+
+      ## Grain
+      One row per order
+
+      ## Business Logic
+      - Aggregates multiple payments per order
+      - Pivots payment amounts by payment method
+      - Calculates payment-level metrics
+      - Used by fact tables to avoid duplicating logic
+
+      ## Usage
+      This is an ephemeral model (not materialized) used to prepare
+      payment data for consumption by downstream fact tables.
+
+    config:
+      materialized: ephemeral
+
+    columns:
+      - name: order_id
+        description: "Primary key - one row per order"
+        tests:
+          - unique
+          - not_null
+
+      - name: total_amount
+        description: "Total payment amount across all payment methods"
+
+      - name: credit_card_amount
+        description: "Amount paid via credit card"
+
+      - name: coupon_amount
+        description: "Amount paid via coupon"
+
+      - name: bank_transfer_amount
+        description: "Amount paid via bank transfer"
+
+      - name: gift_card_amount
+        description: "Amount paid via gift card"
+
+      - name: number_of_payment_methods
+        description: "Count of distinct payment methods used"
+
+      - name: number_of_payments
+        description: "Total number of payment transactions"

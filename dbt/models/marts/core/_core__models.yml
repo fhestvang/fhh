@@ -1,0 +1,288 @@
+version: 2
+
+models:
+  - name: dim_customers
+    description: |
+      # Customer Dimension Table
+
+      ## Overview
+      Comprehensive customer dimension with demographic attributes,
+      order metrics, and customer segmentation.
+
+      ## Grain
+      One row per customer (Type 2 SCD ready)
+
+      ## Business Logic
+      - Aggregates customer lifetime metrics
+      - Calculates RFM-style segmentation
+      - Includes SCD Type 2 scaffolding for future use
+
+      ## Refresh Schedule
+      - **Full refresh**: Daily at 2 AM UTC
+      - **Incremental**: Not applicable (full refresh only)
+
+    config:
+      materialized: table
+
+    columns:
+      - name: customer_key
+        description: "Surrogate key for dimension"
+        tests:
+          - unique
+          - not_null
+
+      - name: customer_id
+        description: "Natural key from source system"
+        tests:
+          - not_null
+
+      - name: first_name
+        description: "Customer first name"
+
+      - name: last_name
+        description: "Customer last name"
+
+      - name: full_name
+        description: "Concatenated full name"
+
+      - name: first_order_date
+        description: "Date of customer's first order"
+
+      - name: most_recent_order_date
+        description: "Date of customer's most recent order"
+
+      - name: total_orders
+        description: "Total number of orders placed"
+
+      - name: lifetime_value
+        description: "Total amount spent across all orders"
+
+      - name: customer_segment
+        description: "Value-based segment: No Orders, Low Value, Medium Value, High Value, VIP"
+        tests:
+          - accepted_values:
+              values: ['No Orders', 'Low Value', 'Medium Value', 'High Value', 'VIP']
+
+      - name: customer_frequency
+        description: "Frequency-based segment: New, One-Time, Occasional, Regular, Frequent"
+        tests:
+          - accepted_values:
+              values: ['New', 'One-Time', 'Occasional', 'Regular', 'Frequent']
+
+      - name: average_order_value
+        description: "Lifetime value divided by total orders"
+
+      - name: days_since_last_order
+        description: "Recency metric: days since most recent order"
+
+      - name: customer_tenure_days
+        description: "Days since first order"
+
+      - name: is_current
+        description: "SCD Type 2 flag: indicates current record"
+
+  - name: dim_dates
+    description: |
+      # Date Dimension Table
+
+      ## Overview
+      Comprehensive date dimension covering 2018-2030 with standard
+      date attributes, fiscal calendar, and relative date helpers.
+
+      ## Grain
+      One row per day
+
+      ## Business Logic
+      - Fiscal year starts April 1st
+      - Week starts on Sunday (ISO standard)
+      - Includes holiday markers and business day flags
+
+      ## Refresh Schedule
+      - **Full refresh**: Monthly (to update relative date flags)
+
+    config:
+      materialized: table
+
+    columns:
+      - name: date_key
+        description: "Primary key: date value"
+        tests:
+          - unique
+          - not_null
+
+      - name: date_id
+        description: "Integer date identifier (YYYYMMDD format)"
+
+      - name: year
+        description: "Calendar year"
+
+      - name: fiscal_year
+        description: "Fiscal year (starts April 1st)"
+
+      - name: quarter
+        description: "Calendar quarter (1-4)"
+
+      - name: fiscal_quarter
+        description: "Fiscal quarter (1-4)"
+
+      - name: month
+        description: "Month number (1-12)"
+
+      - name: month_name
+        description: "Full month name"
+
+      - name: week_of_year
+        description: "Week number within year"
+
+      - name: day_of_month
+        description: "Day number within month"
+
+      - name: day_of_week
+        description: "Day number within week (0=Sunday, 6=Saturday)"
+
+      - name: day_name
+        description: "Full day name"
+
+      - name: is_weekday
+        description: "Boolean: true if Monday-Friday"
+
+      - name: is_weekend
+        description: "Boolean: true if Saturday-Sunday"
+
+      - name: is_current_month
+        description: "Boolean: true if date is in current month"
+
+      - name: is_current_quarter
+        description: "Boolean: true if date is in current quarter"
+
+      - name: is_current_year
+        description: "Boolean: true if date is in current year"
+
+  - name: dim_payment_methods
+    description: |
+      # Payment Method Dimension Table
+
+      ## Overview
+      Reference dimension for payment methods with display names
+      and categorization.
+
+      ## Grain
+      One row per payment method
+
+      ## Business Logic
+      - Derived from distinct payment methods in staging
+      - Includes display names and category groupings
+
+    config:
+      materialized: table
+
+    columns:
+      - name: payment_method_key
+        description: "Surrogate key for dimension"
+        tests:
+          - unique
+          - not_null
+
+      - name: payment_method_id
+        description: "Natural key from source system"
+        tests:
+          - not_null
+
+      - name: payment_method_name
+        description: "Raw payment method value"
+
+      - name: payment_method_display_name
+        description: "Human-readable payment method name"
+
+      - name: payment_category
+        description: "Payment method category: Electronic, Promotional, Prepaid, Other"
+        tests:
+          - accepted_values:
+              values: ['Electronic', 'Promotional', 'Prepaid', 'Other']
+
+  - name: fct_orders
+    description: |
+      # Orders Fact Table
+
+      ## Overview
+      Core fact table for order transactions with grain of one row per order.
+      Contains foreign keys to dimensions and order-level metrics.
+
+      ## Grain
+      One row per order
+
+      ## Business Logic
+      - Aggregates all payments at order level
+      - Pivots payment methods for analysis
+      - Includes order status flags
+      - Uses intermediate layer for payment aggregation
+
+      ## Refresh Schedule
+      - **Materialization**: Table (small dataset)
+      - **Incremental**: Not implemented (could be added for scale)
+
+    config:
+      materialized: table
+      tags: ['fact', 'orders', 'critical']
+
+    columns:
+      - name: order_key
+        description: "Fact table primary key (same as order_id)"
+        tests:
+          - unique
+          - not_null
+
+      - name: customer_key
+        description: "Foreign key to dim_customers"
+        tests:
+          - not_null
+          - relationships:
+              to: ref('dim_customers')
+              field: customer_key
+
+      - name: order_date_key
+        description: "Foreign key to dim_dates"
+        tests:
+          - not_null
+          - relationships:
+              to: ref('dim_dates')
+              field: date_key
+
+      - name: order_id
+        description: "Degenerate dimension: order identifier"
+
+      - name: order_status
+        description: "Order status"
+        tests:
+          - accepted_values:
+              values: ['placed', 'shipped', 'completed', 'return_pending', 'returned']
+
+      - name: order_amount
+        description: "Total order amount (additive measure)"
+
+      - name: credit_card_amount
+        description: "Amount paid via credit card (additive measure)"
+
+      - name: coupon_amount
+        description: "Amount paid via coupon (additive measure)"
+
+      - name: bank_transfer_amount
+        description: "Amount paid via bank transfer (additive measure)"
+
+      - name: gift_card_amount
+        description: "Amount paid via gift card (additive measure)"
+
+      - name: payment_method_count
+        description: "Number of distinct payment methods used (semi-additive)"
+
+      - name: payment_count
+        description: "Total number of payments (semi-additive)"
+
+      - name: average_payment_amount
+        description: "Average payment amount (non-additive)"
+
+      - name: is_completed
+        description: "Boolean flag for completed orders"
+
+      - name: is_returned
+        description: "Boolean flag for returned orders"
