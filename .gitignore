@@ -35,6 +35,10 @@ dbt_modules/
 *.duckdb.wal
 *.db
 
+# dlt pipeline data and state
+1_ingestion/data/
+**/dlt_pipelines/
+
 # IDE
 .vscode/
 .idea/

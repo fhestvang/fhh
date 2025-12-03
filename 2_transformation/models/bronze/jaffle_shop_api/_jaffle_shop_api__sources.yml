@@ -1,0 +1,193 @@
+version: 2
+
+sources:
+  - name: jaffle_shop_api
+    description: "Raw data loaded by dlt pipeline from Jaffle Shop REST API into DuckDB"
+    database: "{{ target.database }}"
+    schema: jaffle_shop_raw
+
+    meta:
+      loader: "dlt"
+      source_type: "rest_api"
+      owner: "data-engineering@company.com"
+      sync_frequency: "on_demand"
+      pipeline: "jaffle_shop"
+
+    tables:
+      - name: raw_customers
+        description: "Raw customer data from Jaffle Shop REST API"
+        columns:
+          - name: id
+            description: "Primary key for customers in source system"
+            tests:
+              - unique
+              - not_null
+
+          - name: first_name
+            description: "Customer first name"
+
+          - name: last_name
+            description: "Customer last name"
+
+          - name: _dlt_load_id
+            description: "dlt load ID for data lineage tracking"
+
+          - name: _dlt_id
+            description: "dlt unique row identifier"
+
+      - name: raw_orders
+        description: "Raw order data from Jaffle Shop REST API"
+        columns:
+          - name: id
+            description: "Primary key for orders in source system"
+            tests:
+              - unique
+              - not_null
+
+          - name: user_id
+            description: "Foreign key to customers"
+            tests:
+              - not_null
+
+          - name: order_date
+            description: "Date the order was placed"
+
+          - name: status
+            description: "Order status"
+
+          - name: _dlt_load_id
+            description: "dlt load ID for data lineage tracking"
+
+          - name: _dlt_id
+            description: "dlt unique row identifier"
+
+      - name: raw_payments
+        description: "Raw payment data from Jaffle Shop REST API"
+        columns:
+          - name: id
+            description: "Primary key for payments in source system"
+            tests:
+              - unique
+              - not_null
+
+          - name: order_id
+            description: "Foreign key to orders"
+            tests:
+              - not_null
+
+          - name: payment_method
+            description: "Payment method used"
+
+          - name: amount
+            description: "Payment amount in cents"
+
+          - name: _dlt_load_id
+            description: "dlt load ID for data lineage tracking"
+
+          - name: _dlt_id
+            description: "dlt unique row identifier"
+
+      - name: raw_items
+        description: "Raw order items data from Jaffle Shop REST API"
+        columns:
+          - name: id
+            description: "Primary key for items in source system"
+            tests:
+              - unique
+              - not_null
+
+          - name: order_id
+            description: "Foreign key to orders"
+            tests:
+              - not_null
+
+          - name: product_id
+            description: "Foreign key to products"
+            tests:
+              - not_null
+
+          - name: _dlt_load_id
+            description: "dlt load ID for data lineage tracking"
+
+          - name: _dlt_id
+            description: "dlt unique row identifier"
+
+      - name: raw_products
+        description: "Raw product data from Jaffle Shop REST API"
+        columns:
+          - name: id
+            description: "Primary key for products in source system"
+            tests:
+              - unique
+              - not_null
+
+          - name: name
+            description: "Product name"
+
+          - name: description
+            description: "Product description"
+
+          - name: category
+            description: "Product category"
+
+          - name: price
+            description: "Product price"
+
+          - name: perishable
+            description: "Whether product is perishable"
+
+          - name: _dlt_load_id
+            description: "dlt load ID for data lineage tracking"
+
+          - name: _dlt_id
+            description: "dlt unique row identifier"
+
+      - name: raw_supplies
+        description: "Raw supply data from Jaffle Shop REST API"
+        columns:
+          - name: id
+            description: "Primary key for supplies in source system"
+            tests:
+              - unique
+              - not_null
+
+          - name: product_id
+            description: "Foreign key to products"
+            tests:
+              - not_null
+
+          - name: cost
+            description: "Supply cost"
+
+          - name: perishable
+            description: "Whether supply is perishable"
+
+          - name: _dlt_load_id
+            description: "dlt load ID for data lineage tracking"
+
+          - name: _dlt_id
+            description: "dlt unique row identifier"
+
+      - name: raw_stores
+        description: "Raw store data from Jaffle Shop REST API"
+        columns:
+          - name: id
+            description: "Primary key for stores in source system"
+            tests:
+              - unique
+              - not_null
+
+          - name: name
+            description: "Store name"
+
+          - name: tax_rate
+            description: "Store tax rate"
+
+          - name: opened_at
+            description: "Store opening date"
+
+          - name: _dlt_load_id
+            description: "dlt load ID for data lineage tracking"
+
+          - name: _dlt_id
+            description: "dlt unique row identifier"

@@ -1,0 +1,109 @@
+name: 'test_proj'
+version: '1.0.0'
+config-version: 2
+
+profile: 'test_proj'
+
+model-paths: ["models"]
+analysis-paths: ["analyses"]
+test-paths: ["tests"]
+seed-paths: ["seeds"]
+macro-paths: ["macros"]
+snapshot-paths: ["snapshots"]
+
+clean-targets:
+  - "target"
+  - "dbt_packages"
+  - "logs"
+
+# Enterprise-grade model configurations (Medallion Architecture)
+models:
+  test_proj:
+
+    # Bronze layer: Raw data ingestion, lightweight views organized by source system
+    bronze:
+      +materialized: view
+      +schema: bronze
+      +docs:
+        node_color: "#CD7F32"  # Bronze color in dbt docs
+
+      # Source-specific configs
+      jaffle_shop_api:
+        +tags: ["jaffle_shop", "api", "bronze", "dlt"]
+        +meta:
+          owner: "data-engineering@company.com"
+          layer: "bronze"
+          source_type: "rest_api"
+          loader: "dlt"
+
+    # Silver layer: Cleaned and conformed data, ephemeral by default
+    silver:
+      +materialized: ephemeral
+      +schema: silver
+      +docs:
+        node_color: "#C0C0C0"  # Silver color in dbt docs
+
+      # Domain-specific configs
+      finance:
+        +tags: ["finance", "silver"]
+        +meta:
+          owner: "finance-analytics@company.com"
+          layer: "silver"
+
+    # Gold layer: Business-level aggregates and dimensions for production use
+    gold:
+      +materialized: table
+      +schema: gold
+      +docs:
+        node_color: "#FFD700"  # Gold color in dbt docs
+
+      # Core domain (cross-functional entities)
+      core:
+        +tags: ["core", "critical", "gold"]
+        +meta:
+          owner: "data-engineering@company.com"
+          layer: "gold"
+          criticality: "high"
+
+        # Dimension tables
+        +dim_*:
+          +tags: ["dimension"]
+          +meta:
+            model_type: "dimension"
+
+        # Fact tables (could be incremental at scale)
+        +fct_*:
+          +materialized: table  # Change to incremental for large datasets
+          +tags: ["fact"]
+          +meta:
+            model_type: "fact"
+
+# Seeds configuration
+seeds:
+  test_proj:
+    +schema: seeds
+    +quote_columns: false
+
+# Snapshots configuration (for SCD Type 2)
+snapshots:
+  test_proj:
+    +target_schema: snapshots
+    +strategy: timestamp
+    +updated_at: updated_at
+
+# Tests configuration
+tests:
+  test_proj:
+    +severity: warn  # Don't fail builds on test failures by default
+
+    gold:
+      +severity: error  # But fail on critical gold layer tests
+
+# Global variables (can be overridden in profiles.yml)
+vars:
+  # Date range for date dimension
+  date_dimension_start: '2018-01-01'
+  date_dimension_end: '2030-12-31'
+
+  # Fiscal year settings
+  fiscal_year_start_month: 4  # April

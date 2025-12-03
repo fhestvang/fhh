@@ -17,7 +17,17 @@
       "Bash(powershell.exe -Command \"Copy-Item -Path ''test_proj'' -Destination ''dbt'' -Recurse -Force\")",
       "Bash(powershell.exe -Command \"Remove-Item -Path ''test_proj'' -Recurse -Force\")",
       "Bash(powershell.exe:*)",
-      "Bash(git init:*)"
+      "Bash(git init:*)",
+      "Bash(git remote add:*)",
+      "Bash(git branch:*)",
+      "Bash(git push:*)",
+      "Bash(dbt.bat compile:*)",
+      "Bash(timeout:*)",
+      "Bash(dbt.bat list:*)",
+      "Bash(python check_db.py:*)",
+      "Bash(python:*)",
+      "Bash(dbt.bat run:*)",
+      "Bash(git add:*)"
     ],
     "deny": [],
     "ask": []

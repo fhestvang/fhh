@@ -1,0 +1,331 @@
+version: 2
+
+models:
+  - name: brz_jaffle_shop_api__customers
+    description: |
+      Bronze layer customer data loaded from Jaffle Shop REST API via dlt.
+
+      ## Grain
+      One row per customer
+
+      ## Business Logic
+      - Renames source columns to analytics-friendly names
+      - Includes dlt metadata columns for lineage tracking
+      - No filtering or business logic applied
+      - 1:1 relationship with source table
+
+      ## Data Source
+      Loaded from Jaffle Shop REST API via dlt pipeline
+
+    columns:
+      - name: customer_id
+        description: "Primary key for customers"
+        tests:
+          - unique
+          - not_null
+          - relationships:
+              to: source('jaffle_shop_api', 'raw_customers')
+              field: id
+
+      - name: first_name
+        description: "Customer first name"
+
+      - name: last_name
+        description: "Customer last name"
+
+      - name: _dlt_load_id
+        description: "dlt load ID for tracking which pipeline run loaded this record"
+
+      - name: _dlt_id
+        description: "dlt unique row identifier for deduplication"
+
+  - name: brz_jaffle_shop_api__orders
+    description: |
+      Bronze layer order data loaded from Jaffle Shop REST API via dlt.
+
+      ## Grain
+      One row per order
+
+      ## Business Logic
+      - Renames source columns to analytics-friendly names
+      - Includes dlt metadata columns for lineage tracking
+      - No filtering or business logic applied
+      - 1:1 relationship with source table
+
+      ## Data Source
+      Loaded from Jaffle Shop REST API via dlt pipeline
+
+    columns:
+      - name: order_id
+        description: "Primary key for orders"
+        tests:
+          - unique
+          - not_null
+          - relationships:
+              to: source('jaffle_shop_api', 'raw_orders')
+              field: id
+
+      - name: customer_id
+        description: "Foreign key to customers"
+        tests:
+          - not_null
+          - relationships:
+              to: ref('brz_jaffle_shop_api__customers')
+              field: customer_id
+
+      - name: order_date
+        description: "Date the order was placed"
+        tests:
+          - not_null
+
+      - name: status
+        description: "Order status"
+        tests:
+          - not_null
+          - accepted_values:
+              values: ['placed', 'shipped', 'completed', 'return_pending', 'returned']
+
+      - name: _dlt_load_id
+        description: "dlt load ID for tracking which pipeline run loaded this record"
+
+      - name: _dlt_id
+        description: "dlt unique row identifier for deduplication"
+
+  - name: brz_jaffle_shop_api__payments
+    description: |
+      Bronze layer payment data loaded from Jaffle Shop REST API via dlt.
+
+      ## Grain
+      One row per payment
+
+      ## Business Logic
+      - Renames source columns to analytics-friendly names
+      - Converts amount from cents to dollars
+      - Includes dlt metadata columns for lineage tracking
+      - No filtering applied
+      - 1:1 relationship with source table
+
+      ## Data Source
+      Loaded from Jaffle Shop REST API via dlt pipeline
+
+    columns:
+      - name: payment_id
+        description: "Primary key for payments"
+        tests:
+          - unique
+          - not_null
+          - relationships:
+              to: source('jaffle_shop_api', 'raw_payments')
+              field: id
+
+      - name: order_id
+        description: "Foreign key to orders"
+        tests:
+          - not_null
+          - relationships:
+              to: ref('brz_jaffle_shop_api__orders')
+              field: order_id
+
+      - name: payment_method
+        description: "Payment method used"
+        tests:
+          - not_null
+          - accepted_values:
+              values: ['credit_card', 'coupon', 'bank_transfer', 'gift_card']
+
+      - name: amount
+        description: "Payment amount in dollars (converted from cents)"
+        tests:
+          - not_null
+
+      - name: _dlt_load_id
+        description: "dlt load ID for tracking which pipeline run loaded this record"
+
+      - name: _dlt_id
+        description: "dlt unique row identifier for deduplication"
+
+  - name: brz_jaffle_shop_api__items
+    description: |
+      Bronze layer order items data loaded from Jaffle Shop REST API via dlt.
+
+      ## Grain
+      One row per order item
+
+      ## Business Logic
+      - Renames source columns to analytics-friendly names
+      - Includes dlt metadata columns for lineage tracking
+      - No filtering or business logic applied
+      - 1:1 relationship with source table
+
+      ## Data Source
+      Loaded from Jaffle Shop REST API via dlt pipeline
+
+    columns:
+      - name: item_id
+        description: "Primary key for items"
+        tests:
+          - unique
+          - not_null
+          - relationships:
+              to: source('jaffle_shop_api', 'raw_items')
+              field: id
+
+      - name: order_id
+        description: "Foreign key to orders"
+        tests:
+          - not_null
+          - relationships:
+              to: ref('brz_jaffle_shop_api__orders')
+              field: order_id
+
+      - name: product_id
+        description: "Foreign key to products"
+        tests:
+          - not_null
+
+      - name: _dlt_load_id
+        description: "dlt load ID for tracking which pipeline run loaded this record"
+
+      - name: _dlt_id
+        description: "dlt unique row identifier for deduplication"
+
+  - name: brz_jaffle_shop_api__products
+    description: |
+      Bronze layer product data loaded from Jaffle Shop REST API via dlt.
+
+      ## Grain
+      One row per product
+
+      ## Business Logic
+      - Renames source columns to analytics-friendly names
+      - Includes dlt metadata columns for lineage tracking
+      - No filtering or business logic applied
+      - 1:1 relationship with source table
+
+      ## Data Source
+      Loaded from Jaffle Shop REST API via dlt pipeline
+
+    columns:
+      - name: product_id
+        description: "Primary key for products"
+        tests:
+          - unique
+          - not_null
+          - relationships:
+              to: source('jaffle_shop_api', 'raw_products')
+              field: id
+
+      - name: product_name
+        description: "Product name"
+        tests:
+          - not_null
+
+      - name: description
+        description: "Product description"
+
+      - name: category
+        description: "Product category"
+
+      - name: price
+        description: "Product price"
+        tests:
+          - not_null
+
+      - name: perishable
+        description: "Whether product is perishable"
+
+      - name: _dlt_load_id
+        description: "dlt load ID for tracking which pipeline run loaded this record"
+
+      - name: _dlt_id
+        description: "dlt unique row identifier for deduplication"
+
+  - name: brz_jaffle_shop_api__supplies
+    description: |
+      Bronze layer supply data loaded from Jaffle Shop REST API via dlt.
+
+      ## Grain
+      One row per supply
+
+      ## Business Logic
+      - Renames source columns to analytics-friendly names
+      - Includes dlt metadata columns for lineage tracking
+      - No filtering or business logic applied
+      - 1:1 relationship with source table
+
+      ## Data Source
+      Loaded from Jaffle Shop REST API via dlt pipeline
+
+    columns:
+      - name: supply_id
+        description: "Primary key for supplies"
+        tests:
+          - unique
+          - not_null
+          - relationships:
+              to: source('jaffle_shop_api', 'raw_supplies')
+              field: id
+
+      - name: product_id
+        description: "Foreign key to products"
+        tests:
+          - not_null
+
+      - name: cost
+        description: "Supply cost"
+        tests:
+          - not_null
+
+      - name: perishable
+        description: "Whether supply is perishable"
+
+      - name: _dlt_load_id
+        description: "dlt load ID for tracking which pipeline run loaded this record"
+
+      - name: _dlt_id
+        description: "dlt unique row identifier for deduplication"
+
+  - name: brz_jaffle_shop_api__stores
+    description: |
+      Bronze layer store data loaded from Jaffle Shop REST API via dlt.
+
+      ## Grain
+      One row per store
+
+      ## Business Logic
+      - Renames source columns to analytics-friendly names
+      - Includes dlt metadata columns for lineage tracking
+      - No filtering or business logic applied
+      - 1:1 relationship with source table
+
+      ## Data Source
+      Loaded from Jaffle Shop REST API via dlt pipeline
+
+    columns:
+      - name: store_id
+        description: "Primary key for stores"
+        tests:
+          - unique
+          - not_null
+          - relationships:
+              to: source('jaffle_shop_api', 'raw_stores')
+              field: id
+
+      - name: store_name
+        description: "Store name"
+        tests:
+          - not_null
+
+      - name: tax_rate
+        description: "Store tax rate"
+        tests:
+          - not_null
+
+      - name: opened_at
+        description: "Store opening date"
+
+      - name: _dlt_load_id
+        description: "dlt load ID for tracking which pipeline run loaded this record"
+
+      - name: _dlt_id
+        description: "dlt unique row identifier for deduplication"
