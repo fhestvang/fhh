@@ -11,10 +11,6 @@ customer_orders as (
     select * from {{ ref('brz_jaffle_shop_api__orders') }}
 ),
 
-customer_payments as (
-    select * from {{ ref('brz_jaffle_shop_api__payments') }}
-),
-
 -- Aggregate customer metrics
 customer_metrics as (
     select
@@ -22,10 +18,9 @@ customer_metrics as (
         min(o.order_date) as first_order_date,
         max(o.order_date) as most_recent_order_date,
         count(distinct o.order_id) as number_of_orders,
-        sum(p.amount) as lifetime_value
+        sum(o.order_total) as lifetime_value
 
     from customer_orders as o
-    left join customer_payments as p on o.order_id = p.order_id
     group by o.customer_id
 ),
 

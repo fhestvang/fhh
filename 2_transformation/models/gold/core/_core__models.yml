@@ -13,7 +13,7 @@ models:
       One row per customer (Type 2 SCD ready)
 
       ## Business Logic
-      - Aggregates customer lifetime metrics
+      - Aggregates customer lifetime metrics from orders
       - Calculates RFM-style segmentation
       - Includes SCD Type 2 scaffolding for future use
 
@@ -36,14 +36,8 @@ models:
         tests:
           - not_null
 
-      - name: first_name
-        description: "Customer first name"
-
-      - name: last_name
-        description: "Customer last name"
-
       - name: full_name
-        description: "Concatenated full name"
+        description: "Customer full name"
 
       - name: first_order_date
         description: "Date of customer's first order"
@@ -158,48 +152,6 @@ models:
       - name: is_current_year
         description: "Boolean: true if date is in current year"
 
-  - name: dim_payment_methods
-    description: |
-      # Payment Method Dimension Table
-
-      ## Overview
-      Reference dimension for payment methods with display names
-      and categorization.
-
-      ## Grain
-      One row per payment method
-
-      ## Business Logic
-      - Derived from distinct payment methods in staging
-      - Includes display names and category groupings
-
-    config:
-      materialized: table
-
-    columns:
-      - name: payment_method_key
-        description: "Surrogate key for dimension"
-        tests:
-          - unique
-          - not_null
-
-      - name: payment_method_id
-        description: "Natural key from source system"
-        tests:
-          - not_null
-
-      - name: payment_method_name
-        description: "Raw payment method value"
-
-      - name: payment_method_display_name
-        description: "Human-readable payment method name"
-
-      - name: payment_category
-        description: "Payment method category: Electronic, Promotional, Prepaid, Other"
-        tests:
-          - accepted_values:
-              values: ['Electronic', 'Promotional', 'Prepaid', 'Other']
-
   - name: fct_orders
     description: |
       # Orders Fact Table
@@ -212,10 +164,8 @@ models:
       One row per order
 
       ## Business Logic
-      - Aggregates all payments at order level
-      - Pivots payment methods for analysis
+      - Contains order amounts from API
       - Includes order status flags
-      - Uses intermediate layer for payment aggregation
 
       ## Refresh Schedule
       - **Materialization**: Table (small dataset)
@@ -251,32 +201,17 @@ models:
       - name: order_id
         description: "Degenerate dimension: order identifier"
 
-      - name: order_amount
-        description: "Total order amount (additive measure)"
+      - name: store_id
+        description: "Store identifier"
 
-      - name: credit_card_amount
-        description: "Amount paid via credit card (additive measure)"
+      - name: subtotal
+        description: "Order subtotal before tax (additive measure)"
 
-      - name: coupon_amount
-        description: "Amount paid via coupon (additive measure)"
+      - name: tax_paid
+        description: "Tax amount (additive measure)"
 
-      - name: bank_transfer_amount
-        description: "Amount paid via bank transfer (additive measure)"
+      - name: order_total
+        description: "Total order amount including tax (additive measure)"
 
-      - name: gift_card_amount
-        description: "Amount paid via gift card (additive measure)"
-
-      - name: payment_method_count
-        description: "Number of distinct payment methods used (semi-additive)"
-
-      - name: payment_count
-        description: "Total number of payments (semi-additive)"
-
-      - name: average_payment_amount
-        description: "Average payment amount (non-additive)"
-
-      - name: is_completed
-        description: "Boolean flag for completed orders"
-
-      - name: is_returned
-        description: "Boolean flag for returned orders"
+      - name: created_at
+        description: "Audit timestamp for record creation"

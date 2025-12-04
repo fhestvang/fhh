@@ -61,32 +61,6 @@ sources:
           - name: _dlt_id
             description: "dlt unique row identifier"
 
-      - name: raw_payments
-        description: "Raw payment data from Jaffle Shop REST API"
-        columns:
-          - name: id
-            description: "Primary key for payments in source system"
-            tests:
-              - unique
-              - not_null
-
-          - name: order_id
-            description: "Foreign key to orders"
-            tests:
-              - not_null
-
-          - name: payment_method
-            description: "Payment method used"
-
-          - name: amount
-            description: "Payment amount in cents"
-
-          - name: _dlt_load_id
-            description: "dlt load ID for data lineage tracking"
-
-          - name: _dlt_id
-            description: "dlt unique row identifier"
-
       - name: raw_items
         description: "Raw order items data from Jaffle Shop REST API"
         columns:

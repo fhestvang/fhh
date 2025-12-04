@@ -47,30 +47,6 @@ def orders_resource():
     yield from fetch_from_api("orders")
 
 
-@dlt.resource(name="raw_payments", write_disposition="replace")
-def payments_resource():
-    """
-    Load raw payments data.
-    Note: The Jaffle Shop API doesn't have a payments endpoint,
-    so we extract payment info from order items.
-    """
-    from datetime import datetime
-
-    # Since the API doesn't have payments, we'll generate mock payment data
-    # based on orders (in production, this would come from a real payments API)
-    orders = list(fetch_from_api("orders"))
-
-    payment_id = 1
-    for order in orders:
-        # Generate a payment for each order
-        payment = {
-            "id": payment_id,
-            "order_id": order.get("id"),
-            "payment_method": "credit_card",  # Mock data
-            "amount": 2500  # Mock amount in cents
-        }
-        yield payment
-        payment_id += 1
 
 
 @dlt.resource(name="raw_items", write_disposition="replace")
@@ -128,7 +104,6 @@ def run_pipeline(environment="prod"):
         [
             customers_resource(),
             orders_resource(),
-            payments_resource(),
             items_resource(),
             products_resource(),
             supplies_resource(),
